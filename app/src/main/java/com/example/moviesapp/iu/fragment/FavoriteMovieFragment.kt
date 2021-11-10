@@ -1,4 +1,6 @@
 package com.example.moviesapp.iu.fragment
 
-class FavoriteMovieFragment {
+import androidx.fragment.app.Fragment
+
+class FavoriteMovieFragment:Fragment() {
 }

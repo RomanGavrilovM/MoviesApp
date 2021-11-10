@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Movies</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="list_movie">List movie</string>
+    <string name="favorite_movie">Favorite movie</string>
+    <string name="ratings_movie">Ratings movie</string>
 </resources>
