@@ -1,4 +1,20 @@
 package com.example.moviesapp.domain.entity
 
-class Movie {
+import android.media.Image
+import android.net.Uri
+import android.os.Parcelable
+import androidx.versionedparcelable.VersionedParcelize
+import kotlinx.android.parcel.Parcelize
+
+@Parcelize
+data class Movie(
+    val image: Int,
+    val description:String,
+    val name: String,
+    val year: String,
+    val rating: Float
+):Parcelable {
+    var id: Long? = null
 }
+
+

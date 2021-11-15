@@ -4,14 +4,25 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-
-    <fragment
-        android:id="@+id/nav_host_fragment"
-        android:layout_height="match_parent"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:name="androidx.navigation.fragment.NavHostFragment"
-        app:navGraph="@navigation/mobile_navigation"
-        />
+        android:layout_height="match_parent">
+        <fragment
+            android:id="@+id/nav_host_fragment"
+            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:name="androidx.navigation.fragment.NavHostFragment"
+            app:navGraph="@navigation/mobile_navigation"
+            />
+        <fragment
+            android:id="@+id/one_movie_fragment"
+            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:name="androidx.navigation.fragment.NavHostFragment"
+
+            />
+    </FrameLayout>
+
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/nav_view"
@@ -20,5 +31,7 @@
         android:layout_gravity="bottom"
         app:menu="@menu/bottom_nav_menu">
 
+
     </com.google.android.material.bottomnavigation.BottomNavigationView>
+
 </FrameLayout>

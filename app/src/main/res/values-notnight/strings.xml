@@ -3,4 +3,6 @@
     <string name="seach">Seach</string>
     <string name="settings">Settings</string>
     <string name="exit">Exit</string>
+    <string name="horror">Horror</string>
+    <string name="horror_top">Horror_top</string>
 </resources>
