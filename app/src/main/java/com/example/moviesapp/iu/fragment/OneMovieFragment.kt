@@ -7,18 +7,17 @@ import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import com.bumptech.glide.Glide
 import com.google.android.material.appbar.MaterialToolbar
 import com.example.moviesapp.R
+import com.example.moviesapp.databinding.FragmentOneMovieBinding
 import com.example.moviesapp.domain.entity.Movie
 import com.example.moviesapp.iu.main.MainActivity
 
 class OneMovieFragment:Fragment() {
     private lateinit var toolbar: MaterialToolbar
+    private  lateinit var binding: FragmentOneMovieBinding
     private  var controller: OneMovieFragment.Controller? = null
-    private lateinit  var  nameOneMovieTextView : TextView
-    private lateinit  var  descriptionOneMovieTextView : TextView
-    private lateinit  var  ratingsOneMovieTextView : TextView
-    private lateinit  var  imageOneMovie : ImageView
 
     private lateinit var movie:Movie
     override fun onCreateView(
@@ -26,9 +25,9 @@ class OneMovieFragment:Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        binding = FragmentOneMovieBinding.inflate(layoutInflater)
         setHasOptionsMenu(true)
-        return inflater.inflate(R.layout.fragment_one_movie, container,false)
-
+        return binding.root
     }
 
     override fun onAttach(context: Context) {
@@ -43,7 +42,6 @@ class OneMovieFragment:Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initToolBar(view)
-        initView(view)
         val bundle = arguments
         bundle?.let { putAndSetView(it) }
         controller!!.openOneMovie()
@@ -51,16 +49,20 @@ class OneMovieFragment:Fragment() {
 
     private fun putAndSetView(bundle: Bundle) {
         movie = bundle.getParcelable(ARG_MOVIE_ONE)!!
-        nameOneMovieTextView.text = movie.name
-        descriptionOneMovieTextView.text = movie.description
-        ratingsOneMovieTextView.text = movie.rating.toString()
-        imageOneMovie.setImageResource(movie.image)
-    }
-    private fun initView(view: View) {
-        nameOneMovieTextView = view.findViewById(R.id.one_movie_name_text_view)
-        descriptionOneMovieTextView = view.findViewById(R.id.one_movie_description_text_view)
-        ratingsOneMovieTextView = view.findViewById(R.id.one_movie_ratings_text_view)
-        imageOneMovie = view.findViewById(R.id.one_movie_image)
+        binding.oneMovieNameTextView.text = movie.name
+        binding.oneMovieDescriptionTextView.text = movie.description
+        binding.oneMovieRatingsTextView.text = movie.rating.toString()
+        //   C.setImageResource(movie.image)
+        if(movie.image.isNotBlank()){
+            Glide.with( binding.oneMovieImage.context)
+                .load(movie.image)
+                // .circleCrop()
+                .placeholder(R.drawable.ic_baseline_close_24)
+                .error(R.drawable.ic_baseline_close_24)
+                .into(binding.oneMovieImage)
+        } else{
+            binding.oneMovieImage.setImageResource(R.drawable.ic_baseline_close_24)
+        }
     }
     interface Controller {
         fun openOneMovie()
@@ -92,4 +94,5 @@ class OneMovieFragment:Fragment() {
         fragment.arguments = bundle
         return fragment
     }
+
 }

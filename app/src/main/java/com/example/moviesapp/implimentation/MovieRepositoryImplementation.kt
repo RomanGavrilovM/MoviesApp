@@ -1,13 +1,19 @@
 package com.example.moviesapp.implimentation
 
+import android.app.Activity
+import android.content.Context
+import com.google.android.material.internal.ContextUtils
+import com.mifmif.common.regex.Main
+import kotlinx.coroutines.withContext
 import com.example.moviesapp.domain.entity.Movie
 import com.example.moviesapp.domain.repo.MovieRepository
+import com.example.moviesapp.iu.main.App
+import com.example.moviesapp.iu.main.MainActivity
 import kotlin.contracts.contract
 
 class MovieRepositoryImplementation() : MovieRepository {
     private var  moviesArr:ArrayList<Movie> = ArrayList()
     private  var counter:Long=0
-
     override fun getMovie(): List<Movie> {
         return ArrayList<Movie>(moviesArr)
     }
