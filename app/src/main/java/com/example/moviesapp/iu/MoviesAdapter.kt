@@ -1,0 +1,48 @@
+package com.example.moviesapp.iu
+
+import android.view.LayoutInflater
+import android.view.ViewGroup
+import androidx.recyclerview.widget.RecyclerView
+import com.example.moviesapp.R
+import com.example.moviesapp.domain.entity.Movie
+
+class MoviesAdapter : RecyclerView.Adapter<MoviesViewHolder>() {
+
+    interface onItemClickListener {
+        fun onItemClick(item: Movie);
+    }
+
+    var data: List<Movie> = ArrayList()
+    var listener: onItemClickListener? = null;
+
+    fun setDataBase(data: List<Movie>) {
+        this.data = data
+        notifyDataSetChanged()
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MoviesViewHolder {
+        var itemView = LayoutInflater.from(parent.context)
+            .inflate(R.layout.item_movie, parent, false) as ViewGroup
+        return MoviesViewHolder(itemView!!, listener)
+
+    }
+
+    override fun onBindViewHolder(holder: MoviesViewHolder, position: Int) {
+        holder.bind(getItem(position))
+    }
+
+
+    fun getItem(position: Int): Movie {
+        return data.get(position)
+    }
+
+
+    override fun getItemCount(): Int {
+        return data.size
+    }
+
+    fun setOnItemClickListener(listener: onItemClickListener) {
+        this.listener = listener
+    }
+
+}
