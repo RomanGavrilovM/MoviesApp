@@ -3,44 +3,51 @@ package com.example.moviesapp.iu.main
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.MenuItem
-import android.view.View
 import android.widget.Toast
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import androidx.navigation.ui.setupWithNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationBarView
 import com.google.android.material.snackbar.BaseTransientBottomBar.LENGTH_SHORT
 import com.google.android.material.snackbar.Snackbar
+import com.google.gson.Gson
 import com.example.moviesapp.R
 import com.example.moviesapp.databinding.ActivityMainBinding
-import com.example.moviesapp.domain.entity.Movie
+import com.example.moviesapp.domain.entity.MovieClass
 import com.example.moviesapp.domain.repo.MovieRepository
-import com.example.moviesapp.implimentation.MovieRepositoryImplementation
+import com.example.moviesapp.domain.repo.TheMovieRepo
 import com.example.moviesapp.iu.MoviesAdapter
 import com.example.moviesapp.iu.fragment.ListMovieFragment
 import com.example.moviesapp.iu.fragment.OneMovieFragment
+import java.io.IOException
+import java.lang.Exception
 import java.util.*
 
-class MainActivity : AppCompatActivity(), ListMovieFragment.Controller,
-    OneMovieFragment.Controller {
-
-    private lateinit var  binding: ActivityMainBinding
+class MainActivity  :  AppCompatActivity(), ListMovieFragment.Controller,
+    OneMovieFragment.Controller  {
+    private  val  theMovieRepo: TheMovieRepo  by lazy { app.theMovieRepo }
+    lateinit var  binding: ActivityMainBinding
     var recyclerView: RecyclerView? = null
     var recyclerViewTwo: RecyclerView? = null
     var adapter: MoviesAdapter = MoviesAdapter()
     var adapterTwo: MoviesAdapter = MoviesAdapter()
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+
+        showProgress(true)
+
         val navController = findNavController(R.id.nav_host_fragment)
         binding.navView.setupWithNavController(navController)
+
         initRepo()
+
         binding.navView.setOnItemSelectedListener(NavigationBarView.OnItemSelectedListener { item: MenuItem ->
             when (item.itemId) {
                 //   R.id.navigation_list_movie-> supportFragmentManager.popBackStack()
@@ -56,10 +63,33 @@ class MainActivity : AppCompatActivity(), ListMovieFragment.Controller,
         })
         initRecyclerView()
     }
+    private  fun showProgress(show:Boolean) {
+        binding.progressBar?.isVisible = show
+        recyclerView?.isVisible = !show
+    }
+
 
     fun initRepo() {
-        (applicationContext as App).fillRepoCrazzy()
-        (applicationContext as App).fillRepoFant()
+
+        theMovieRepo.getReposForUserAsync {
+            it.forEach {
+                (applicationContext as App).moviesRepo.createMovie(it)
+            }
+
+            runOnUiThread {
+                initRecyclerView()
+                Thread.sleep(3000)
+                if((applicationContext as App).moviesRepo.getMovie().isEmpty()){
+                    Snackbar.make(binding.snackbarView!!,"Check correct connect internet",LENGTH_SHORT).show()
+                }
+                showProgress(false)
+            }
+
+        }
+
+
+        //  (applicationContext as App).fillRepoCrazzy()
+        //  (applicationContext as App).fillRepoFant()
     }
 
     fun initRecyclerView() {
@@ -85,14 +115,14 @@ class MainActivity : AppCompatActivity(), ListMovieFragment.Controller,
         recyclerView?.adapter = adapter
         adapter.setDataBase(moviesRepo.getMovie())
         adapter.setOnItemClickListener(object : MoviesAdapter.onItemClickListener {
-            override fun onItemClick(item: Movie) {
+            override fun onItemClick(item: MovieClass) {
                 openMovieScreen(item)
                 Toast.makeText(this@MainActivity, item.id.toString(), Toast.LENGTH_SHORT).show();
             }
         })
     }
 
-    fun openMovieScreen(movie: Movie?) {
+    fun openMovieScreen(movie: MovieClass?) {
         loadFragment(OneMovieFragment(), movie!!)
     }
     fun Snackbar.setTextString(int: Int):String{
@@ -115,14 +145,14 @@ class MainActivity : AppCompatActivity(), ListMovieFragment.Controller,
     }
 
     private fun loadFragment(fragment: Fragment) {
-        val transaction = supportFragmentManager.beginTransaction()
+        val transaction = supportFragmentManager.beginTransaction(  )
         transaction.addToBackStack(null)
         transaction.replace(R.id.one_movie_fragment, fragment)
         transaction.commit()
 
     }
 
-    private fun loadFragment(fragment: Fragment, movie: Movie) {
+    private fun loadFragment(fragment: Fragment, movie: MovieClass) {
         val transaction = supportFragmentManager.beginTransaction()
         transaction.addToBackStack(null)
         transaction.replace(
