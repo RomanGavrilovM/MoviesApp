@@ -1,7 +1,11 @@
 package com.example.moviesapp.iu.main
 
+import android.content.*
+import android.net.ConnectivityManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.IBinder
+import android.util.Log
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.core.view.isVisible
@@ -22,10 +26,19 @@ import com.example.moviesapp.domain.repo.TheMovieRepo
 import com.example.moviesapp.iu.MoviesAdapter
 import com.example.moviesapp.iu.fragment.ListMovieFragment
 import com.example.moviesapp.iu.fragment.OneMovieFragment
+import com.example.moviesapp.util.mvp.ExampleBroadcastReceiver
+import com.example.moviesapp.util.mvp.MyService
 import java.io.IOException
 import java.lang.Exception
 import java.util.*
-
+public val  EVENT ="Event"
+object MyAnalytics{
+    fun logEvent(context: Context,event:String){
+        val intent =  Intent(context, MyService::class.java)
+        intent.putExtra(EVENT, event)
+        context.startService(intent)
+    }
+}
 class MainActivity  :  AppCompatActivity(), ListMovieFragment.Controller,
     OneMovieFragment.Controller  {
     private  val  theMovieRepo: TheMovieRepo  by lazy { app.theMovieRepo }
@@ -34,34 +47,62 @@ class MainActivity  :  AppCompatActivity(), ListMovieFragment.Controller,
     var recyclerViewTwo: RecyclerView? = null
     var adapter: MoviesAdapter = MoviesAdapter()
     var adapterTwo: MoviesAdapter = MoviesAdapter()
+    val exampleBroadcastReceiver: ExampleBroadcastReceiver = ExampleBroadcastReceiver()
+    val connection =  object : ServiceConnection{
+        override fun onServiceConnected(name: ComponentName?, binder: IBinder?) {
+            Log.d("@@@", "onServiceConnected")
+        }
+
+        override fun onServiceDisconnected(name: ComponentName?) {
+            Log.d("@@@", "onServiceDisconnected")
+        }
+
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-
         showProgress(true)
-
         val navController = findNavController(R.id.nav_host_fragment)
         binding.navView.setupWithNavController(navController)
-
         initRepo()
 
         binding.navView.setOnItemSelectedListener(NavigationBarView.OnItemSelectedListener { item: MenuItem ->
             when (item.itemId) {
                 //   R.id.navigation_list_movie-> supportFragmentManager.popBackStack()
                 //Toast.makeText(this,"Список", Toast.LENGTH_SHORT).show()
-                R.id.navigation_favorite_movie -> supportFragmentManager.popBackStack()
-                //Toast.makeText(this,"Избранное", Toast.LENGTH_SHORT).show()
-                R.id.navigation_ratings_movie -> supportFragmentManager.popBackStack()
-                //Toast.makeText(this,"Рейтинг", Toast.LENGTH_SHORT).show()
+                R.id.navigation_favorite_movie ->{
+                    supportFragmentManager.popBackStack()
+                    //Toast.makeText(this,"Избранное", Toast.LENGTH_SHORT).show()
+                }
+                R.id.navigation_ratings_movie -> {
+                    supportFragmentManager.popBackStack()
+                    // Toast.makeText(this,"Рейтинг", Toast.LENGTH_SHORT).show()
+
+
+                }
 
             }
 
             true
         })
         initRecyclerView()
+
+        MyAnalytics.logEvent(this, "OnCreateMainActivity")
+
+    }
+
+    override fun onStart() {
+        super.onStart()
+        val filter: IntentFilter = IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
+        registerReceiver(exampleBroadcastReceiver, filter)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        MyAnalytics.logEvent(this, "OnStopMainActivity")
+        unregisterReceiver(exampleBroadcastReceiver)
     }
     private  fun showProgress(show:Boolean) {
         binding.progressBar?.isVisible = show
@@ -123,6 +164,7 @@ class MainActivity  :  AppCompatActivity(), ListMovieFragment.Controller,
     }
 
     fun openMovieScreen(movie: MovieClass?) {
+        MyAnalytics.logEvent(this, "Open ${movie?.name}")
         loadFragment(OneMovieFragment(), movie!!)
     }
     fun Snackbar.setTextString(int: Int):String{
@@ -135,8 +177,19 @@ class MainActivity  :  AppCompatActivity(), ListMovieFragment.Controller,
             R.id.setting -> Snackbar.make(binding.snackbarView!!,snack.setTextString(R.string.settings),LENGTH_SHORT).show()
 
             //Toast.makeText(this, "Настройки", Toast.LENGTH_LONG).show()
-            R.id.exit -> Toast.makeText(this, "Выход", Toast.LENGTH_LONG).show()
-            R.id.search_movie -> Toast.makeText(this, "поиск", Toast.LENGTH_LONG).show()
+            R.id.exit -> {
+                //    val intent = Intent(this, MyService::class.java)
+                //    startService(intent)
+                Toast.makeText(this, "Выход", Toast.LENGTH_LONG).show()
+
+                bindService(Intent(this, MyService::class.java) ,connection, BIND_AUTO_CREATE)
+            }
+            R.id.search_movie ->
+            {
+                Toast.makeText(this, "поиск", Toast.LENGTH_LONG).show()
+                unbindService(connection)
+            }
+
             android.R.id.home -> supportFragmentManager.popBackStack()
             //  Toast.makeText(this,"Назад",Toast.LENGTH_LONG).show()
         }
