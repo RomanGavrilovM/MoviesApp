@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.navigation.NavigationBarView
 import com.google.android.material.snackbar.BaseTransientBottomBar.LENGTH_SHORT
 import com.google.android.material.snackbar.Snackbar
+import com.google.gson.Gson
 import com.example.moviesapp.R
 import com.example.moviesapp.databinding.ActivityMainBinding
 import com.example.moviesapp.domain.entity.MovieClass
@@ -27,6 +28,8 @@ import com.example.moviesapp.iu.fragment.ListMovieFragment
 import com.example.moviesapp.iu.fragment.OneMovieFragment
 import com.example.moviesapp.util.mvp.ExampleBroadcastReceiver
 import com.example.moviesapp.util.mvp.MyService
+import java.io.IOException
+import java.lang.Exception
 import java.util.*
 public val  EVENT ="Event"
 object MyAnalytics{
@@ -111,18 +114,12 @@ class MainActivity  :  AppCompatActivity(), ListMovieFragment.Controller,
 
         theMovieRepo.getReposForUserAsync {
             it.forEach {
-                (applicationContext as App).moviesRepo.createMovie(
-                    MovieClass(
-                        "https://www.themoviedb.org/t/p/w1000_and_h450_multi_faces" +
-                                it.image,
-                        it.name, it.description, it.year.substring(0, 4), it.rating
-                    )
-                )
+                (applicationContext as App).moviesRepo.createMovie(it)
             }
 
             runOnUiThread {
                 initRecyclerView()
-               // Thread.sleep(3000)
+                Thread.sleep(3000)
                 if((applicationContext as App).moviesRepo.getMovie().isEmpty()){
                     Snackbar.make(binding.snackbarView!!,"Check correct connect internet",LENGTH_SHORT).show()
                 }

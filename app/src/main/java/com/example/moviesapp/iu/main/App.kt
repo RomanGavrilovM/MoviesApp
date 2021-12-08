@@ -5,7 +5,6 @@ import android.content.Context
 import android.widget.Toast
 import com.example.moviesapp.R
 import com.example.moviesapp.data.WebTheMovieRepoImpl
-import com.example.moviesapp.data.RetrofitTheMovieRepoImpl
 import com.example.moviesapp.domain.entity.MovieClass
 import com.example.moviesapp.domain.repo.MovieRepository
 import com.example.moviesapp.domain.repo.TheMovieRepo
@@ -14,7 +13,7 @@ import com.example.moviesapp.implimentation.MovieRepositoryImplementation
 class App: Application() {
 
 
-    val theMovieRepo: TheMovieRepo by lazy { RetrofitTheMovieRepoImpl() }
+    val theMovieRepo: TheMovieRepo by lazy { WebTheMovieRepoImpl() }
     var moviesRepo: MovieRepository = MovieRepositoryImplementation()
     var moviesRepoTwo: MovieRepository = MovieRepositoryImplementation()
 

@@ -1,5 +1,8 @@
 package com.example.moviesapp.data
 
+import android.content.Context
+import android.widget.Toast
+import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
 import com.example.moviesapp.domain.entity.MovieClass
 import com.example.moviesapp.domain.entity.Root
@@ -34,8 +37,9 @@ class WebTheMovieRepoImpl:TheMovieRepo {
             model.forEach {
                 it.results.forEach {
                     result.add(MovieClass(
-                        it.image,
-                        it.name, it.description, it.year, it.rating
+                        "https://www.themoviedb.org/t/p/w1000_and_h450_multi_faces" +
+                                it.image,
+                        it.name, it.description, it.year.substring(0, 4), it.rating
                     ))
 
                 }
