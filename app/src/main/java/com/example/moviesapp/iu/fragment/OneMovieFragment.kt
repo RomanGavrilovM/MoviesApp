@@ -16,6 +16,7 @@ class OneMovieFragment:Fragment() {
     private lateinit var toolbar: MaterialToolbar
     private  lateinit var binding: FragmentOneMovieBinding
     private  var controller: OneMovieFragment.Controller? = null
+
     private lateinit var movie:MovieClass
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -26,6 +27,7 @@ class OneMovieFragment:Fragment() {
         setHasOptionsMenu(true)
         return binding.root
     }
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         controller = if (context is OneMovieFragment.Controller) {
@@ -34,6 +36,7 @@ class OneMovieFragment:Fragment() {
             throw IllegalStateException("Activity must implement EditMovieFragment.Controller")
         }
     }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initToolBar(view)
@@ -63,11 +66,13 @@ class OneMovieFragment:Fragment() {
     interface Controller {
         fun openOneMovie()
     }
+
     private fun initToolBar(view: View) {
         toolbar = view.findViewById(R.id.one_movie_toolbar)
         (requireActivity() as MainActivity).setSupportActionBar(toolbar)
         (requireActivity() as MainActivity).supportActionBar!!.setDisplayHomeAsUpEnabled(true)
     }
+
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         menu.clear()
         inflater.inflate(R.menu.menu_one_movie, menu)
@@ -89,5 +94,7 @@ class OneMovieFragment:Fragment() {
         fragment.arguments = bundle
         return fragment
     }
+
+
 
 }

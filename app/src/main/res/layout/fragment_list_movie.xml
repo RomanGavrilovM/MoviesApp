@@ -23,7 +23,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="20dp"
-        android:text="@string/horror"></TextView>
+        android:text="@string/fantazy"></TextView>
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view_movie"
         android:layout_width="match_parent"
@@ -34,7 +34,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="20dp"
-        android:text="@string/horror_top"></TextView>
+        android:text="@string/crazy"></TextView>
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view_movie_2"
         android:layout_width="match_parent"

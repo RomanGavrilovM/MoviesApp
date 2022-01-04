@@ -1,6 +1,11 @@
 package com.example.moviesapp.iu.main
 
 import android.content.*
+import android.content.pm.PackageManager.PERMISSION_GRANTED
+import android.location.Geocoder
+import android.location.Location
+import android.location.LocationListener
+import android.location.LocationManager
 import android.net.ConnectivityManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -8,29 +13,41 @@ import android.os.IBinder
 import android.util.Log
 import android.view.MenuItem
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContract
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.PermissionChecker
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import androidx.navigation.ui.setupWithNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.navigation.NavigationBarView
 import com.google.android.material.snackbar.BaseTransientBottomBar.LENGTH_SHORT
 import com.google.android.material.snackbar.Snackbar
-import com.google.gson.Gson
+import org.apache.commons.lang3.ObjectUtils
+import retrofit2.Call
 import com.example.moviesapp.R
 import com.example.moviesapp.databinding.ActivityMainBinding
 import com.example.moviesapp.domain.entity.MovieClass
 import com.example.moviesapp.domain.repo.MovieRepository
 import com.example.moviesapp.domain.repo.TheMovieRepo
+import com.example.moviesapp.domain.repo.TheMovieRepoRoom
 import com.example.moviesapp.iu.MoviesAdapter
 import com.example.moviesapp.iu.fragment.ListMovieFragment
 import com.example.moviesapp.iu.fragment.OneMovieFragment
 import com.example.moviesapp.util.mvp.ExampleBroadcastReceiver
 import com.example.moviesapp.util.mvp.MyService
-import java.io.IOException
-import java.lang.Exception
+import com.example.moviesapp.util.mvp.toPrintString
 import java.util.*
+import java.util.jar.Manifest
+
 public val  EVENT ="Event"
 object MyAnalytics{
     fun logEvent(context: Context,event:String){
@@ -39,10 +56,37 @@ object MyAnalytics{
         context.startService(intent)
     }
 }
+
+private  const val GPS_UPDATE_DURATION = 1000L
+private const val  GPS_UPDATE_DISTANCE_M = 10f
+
+private  const val  GPS_PERMISSION = android.Manifest.permission.ACCESS_FINE_LOCATION
+
 class MainActivity  :  AppCompatActivity(), ListMovieFragment.Controller,
     OneMovieFragment.Controller  {
+    // private  val movieRepoRoom : TheMovieRepoRoom by lazy { app.movieRepoRoom }
+
+
     private  val  theMovieRepo: TheMovieRepo  by lazy { app.theMovieRepo }
     lateinit var  binding: ActivityMainBinding
+
+    private  var mapView:GoogleMap?= null
+    private val permissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()){
+            isGranted ->
+    }
+    private var location: Location? = null
+        set(value) {
+            field = value
+            val market =    value?.let {
+
+                mapView?.addMarker(MarkerOptions().position(LatLng(it.latitude,it.longitude)))
+                mapView?.moveCamera(CameraUpdateFactory.newLatLng(LatLng(it.latitude,it.longitude)))
+            }
+
+        }
+
+    private val  locationManager by lazy {  getSystemService(LOCATION_SERVICE) as LocationManager }
+
     var recyclerView: RecyclerView? = null
     var recyclerViewTwo: RecyclerView? = null
     var adapter: MoviesAdapter = MoviesAdapter()
@@ -59,6 +103,21 @@ class MainActivity  :  AppCompatActivity(), ListMovieFragment.Controller,
 
     }
 
+    val locationListener = object :LocationListener{
+        override fun onLocationChanged(location: Location) {
+            this@MainActivity.location = location
+        }
+
+        override fun onProviderDisabled(provider: String) {
+            Toast.makeText(this@MainActivity,"Disabled", Toast.LENGTH_LONG ).show()
+        }
+
+        override fun onProviderEnabled(provider: String) {
+            Toast.makeText(this@MainActivity,"Enabled", Toast.LENGTH_LONG ).show()
+        }
+
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -67,7 +126,14 @@ class MainActivity  :  AppCompatActivity(), ListMovieFragment.Controller,
         val navController = findNavController(R.id.nav_host_fragment)
         binding.navView.setupWithNavController(navController)
         initRepo()
-
+        registerMapCallBack{
+            mapView = it
+            Toast.makeText(this@MainActivity, "Map Ready", Toast.LENGTH_LONG).show()
+            val sydney = LatLng(-80.0, 180.0)
+            it.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
+            it.moveCamera(CameraUpdateFactory.newLatLng(sydney))
+        }
+        geo()
         binding.navView.setOnItemSelectedListener(NavigationBarView.OnItemSelectedListener { item: MenuItem ->
             when (item.itemId) {
                 //   R.id.navigation_list_movie-> supportFragmentManager.popBackStack()
@@ -108,18 +174,31 @@ class MainActivity  :  AppCompatActivity(), ListMovieFragment.Controller,
         binding.progressBar?.isVisible = show
         recyclerView?.isVisible = !show
     }
-
+    fun geo() {
+        permissionLauncher.launch(GPS_PERMISSION)
+    }
 
     fun initRepo() {
-
+        val random = Random()
         theMovieRepo.getReposForUserAsync {
+            //   val repos: Call<List<MovieClass>> = theMovieRepo. .api.listRepos("octocat")
             it.forEach {
-                (applicationContext as App).moviesRepo.createMovie(it)
+                var x = -90+ random.nextDouble()*90
+                var y = -180 +  random.nextDouble()*180
+                (applicationContext as App).moviesRepo.createMovie(
+
+
+                    MovieClass(
+                        "https://www.themoviedb.org/t/p/w1000_and_h450_multi_faces" +
+                                it.image,
+                        it.name, it.description, it.year.substring(0, 4), it.rating, x  ,y
+                    )
+                )
             }
 
             runOnUiThread {
                 initRecyclerView()
-                Thread.sleep(3000)
+                //     Thread.sleep(3000)
                 if((applicationContext as App).moviesRepo.getMovie().isEmpty()){
                     Snackbar.make(binding.snackbarView!!,"Check correct connect internet",LENGTH_SHORT).show()
                 }
@@ -159,6 +238,8 @@ class MainActivity  :  AppCompatActivity(), ListMovieFragment.Controller,
             override fun onItemClick(item: MovieClass) {
                 openMovieScreen(item)
                 Toast.makeText(this@MainActivity, item.id.toString(), Toast.LENGTH_SHORT).show();
+                mapView?.addMarker(MarkerOptions().position(LatLng(item.geoLocX,item.geoLocY)))
+                mapView?.moveCamera(CameraUpdateFactory.newLatLng(LatLng(item.geoLocX,item.geoLocY)))
             }
         })
     }
@@ -218,11 +299,17 @@ class MainActivity  :  AppCompatActivity(), ListMovieFragment.Controller,
 
     override fun openListMovie() {
         initRecyclerView()
+
         //  Toast.makeText(this,"Н++",Toast.LENGTH_LONG).show()
     }
 
     override fun openOneMovie() {
 
+    }
+
+    private  fun registerMapCallBack(callback:OnMapReadyCallback){
+        val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
+        mapFragment?.getMapAsync(callback)
     }
 
 }

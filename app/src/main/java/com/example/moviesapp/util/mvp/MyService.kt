@@ -26,6 +26,7 @@ import android.system.Os.socket
 class MyService: Service() {
     private val   TAG = "@@@"
     private  val binder = MyBinder()
+
     override fun onCreate() {
         super.onCreate()
         Log.d(TAG, "OnCreate")
@@ -35,6 +36,7 @@ class MyService: Service() {
         //  return  null
         return binder
     }
+
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         var currentDate = Date()
         val  timeFormat = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
@@ -97,5 +99,6 @@ class MyService: Service() {
         Log.d(TAG, "OnDestroy")
     }
     class MyBinder : Binder(){
+
     }
 }
