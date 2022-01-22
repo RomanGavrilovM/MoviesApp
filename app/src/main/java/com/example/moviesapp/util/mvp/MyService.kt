@@ -5,23 +5,10 @@ import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
 import android.util.Log
-import android.widget.Toast
-import com.example.moviesapp.iu.main.EVENT
-import com.example.moviesapp.iu.main.MainActivity
+import com.example.moviesapp.ui.main.EVENT
 import java.io.*
-import java.lang.StringBuilder
-import java.security.Provider
-import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
-import android.R
-
-import android.os.Environment
-import androidx.core.content.PackageManagerCompat
-import java.lang.Exception
-import androidx.core.content.PackageManagerCompat.LOG_TAG
-import androidx.core.content.PackageManagerCompat.LOG_TAG
-import android.system.Os.socket
 
 class MyService: Service() {
     private val   TAG = "@@@"

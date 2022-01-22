@@ -1,4 +1,4 @@
-package com.example.moviesapp.iu.fragment
+package com.example.moviesapp.ui.fragment
 
 import android.content.Context
 import android.os.Bundle
@@ -9,8 +9,8 @@ import com.google.android.material.appbar.MaterialToolbar
 import com.example.moviesapp.R
 import com.example.moviesapp.databinding.FragmentOneMovieBinding
 import com.example.moviesapp.domain.entity.MovieClass
-import com.example.moviesapp.iu.main.MainActivity
-import com.example.moviesapp.iu.main.MyAnalytics
+import com.example.moviesapp.ui.main.MainActivity
+import com.example.moviesapp.ui.main.MyAnalytics
 
 class OneMovieFragment:Fragment() {
     private lateinit var toolbar: MaterialToolbar

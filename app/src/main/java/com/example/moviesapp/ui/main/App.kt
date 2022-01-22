@@ -1,18 +1,11 @@
-package com.example.moviesapp.iu.main
+package com.example.moviesapp.ui.main
 
 import android.app.Application
 import android.content.Context
-import android.widget.Toast
-import com.example.moviesapp.R
-import com.example.moviesapp.data.MemoryCacheMovieRepoImpl
-import com.example.moviesapp.data.RetrofitTheMovieRepoImpl
-import com.example.moviesapp.data.RoomMovieRepoImpl
 import com.example.moviesapp.data.WebTheMovieRepoImpl
 import com.example.moviesapp.domain.entity.MovieClass
-import com.example.moviesapp.domain.entity.MovieClassRoom
 import com.example.moviesapp.domain.repo.MovieRepository
 import com.example.moviesapp.domain.repo.TheMovieRepo
-import com.example.moviesapp.domain.repo.TheMovieRepoRoom
 import com.example.moviesapp.implimentation.MovieRepositoryImplementation
 
 class App: Application() {

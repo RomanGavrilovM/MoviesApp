@@ -4,10 +4,7 @@ import com.google.gson.Gson
 import com.example.moviesapp.domain.entity.MovieClass
 import com.example.moviesapp.domain.entity.Root
 import com.example.moviesapp.domain.repo.TheMovieRepo
-import com.example.moviesapp.iu.main.App
-import com.example.moviesapp.iu.main.MainActivity
 import java.io.BufferedReader
-import java.io.IOException
 import java.io.InputStreamReader
 import java.lang.Exception
 import java.net.HttpURLConnection
